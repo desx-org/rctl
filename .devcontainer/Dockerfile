@@ -5,5 +5,17 @@ ARG VARIANT="bullseye"
 FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+     && apt-get -y install --no-install-recommends ninja-build
+
+
+RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
+
+WORKDIR /opt/vcpkg
+
+RUN ./bootstrap-vcpkg.sh && \
+./vcpkg integrate install && \
+./vcpkg integrate bash && \
+echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
+echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
+
