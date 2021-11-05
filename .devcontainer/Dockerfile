@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional packages.
  RUN apt-get update \
-     && apt-get -y install --no-install-recommends ninja-build 
+     && apt-get -y install --no-install-recommends ninja-build  pkg-config
 
 RUN apt update
 RUN apt install -y software-properties-common lsb-release
@@ -20,11 +20,14 @@ RUN rm /etc/apt/trusted.gpg.d/kitware.gpg
 RUN apt update
 RUN apt install -y cmake
 
-USER vscode 
 
-RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
+RUN mkdir /opt/vcpkg && chmod ugo+rwx /opt/vcpkg
 
 WORKDIR /opt/vcpkg
+
+USER vscode 
+
+RUN git clone https://github.com/Microsoft/vcpkg.git .
 
 RUN ./bootstrap-vcpkg.sh && \
 ./vcpkg integrate install && \
