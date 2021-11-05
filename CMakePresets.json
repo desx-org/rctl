@@ -12,13 +12,6 @@
       "description": "Debug build using Ninja generator",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/Debug",
-      "cacheVariables": {
-        "FIRST_CACHE_VARIABLE": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "SECOND_CACHE_VARIABLE": "ON"
-      },
       "environment": {
         "MY_ENVIRONMENT_VARIABLE": "Test",
         "PATH": "$env{HOME}/ninja/bin:$penv{PATH}"
@@ -27,7 +20,8 @@
         "example.com/ExampleIDE/1.0": {
           "autoFormat": true
         }
-      }
+      },
+      "toolchainFile": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake"
     }
   ],
   "buildPresets": [

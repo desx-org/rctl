@@ -1,12 +1,12 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.202.5/containers/cpp/.devcontainer/base.Dockerfile
 
 # [Choice] Debian / Ubuntu version (use Debian 11/9, Ubuntu 18.04/21.04 on local arm64/Apple Silicon): debian-11, debian-10, debian-9, ubuntu-21.04, ubuntu-20.04, ubuntu-18.04
-ARG VARIANT="bullseye"
+ARG VARIANT="ubuntu-21.04"
 FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional packages.
- RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-     && apt-get -y install --no-install-recommends ninja-build
+ RUN apt-get update \
+     && apt-get -y install --no-install-recommends ninja-build 
 
 
 RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
@@ -19,3 +19,16 @@ RUN ./bootstrap-vcpkg.sh && \
 echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
 echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
 
+#RUN echo 'FL@gon30!' | passwd --stdin root
+#
+RUN apt update
+RUN apt install -y software-properties-common lsb-release
+RUN apt clean all
+RUN apt remove -y --purge --auto-remove cmake
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+RUN apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+RUN apt update
+RUN apt install -y kitware-archive-keyring 
+RUN rm /etc/apt/trusted.gpg.d/kitware.gpg
+RUN apt update
+RUN apt install -y cmake
