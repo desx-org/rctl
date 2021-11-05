@@ -8,19 +8,6 @@ FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
  RUN apt-get update \
      && apt-get -y install --no-install-recommends ninja-build 
 
-
-RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
-
-WORKDIR /opt/vcpkg
-
-RUN ./bootstrap-vcpkg.sh && \
-./vcpkg integrate install && \
-./vcpkg integrate bash && \
-echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
-echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
-
-#RUN echo 'FL@gon30!' | passwd --stdin root
-#
 RUN apt update
 RUN apt install -y software-properties-common lsb-release
 RUN apt clean all
@@ -32,3 +19,15 @@ RUN apt install -y kitware-archive-keyring
 RUN rm /etc/apt/trusted.gpg.d/kitware.gpg
 RUN apt update
 RUN apt install -y cmake
+
+USER vscode 
+
+RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
+
+WORKDIR /opt/vcpkg
+
+RUN ./bootstrap-vcpkg.sh && \
+./vcpkg integrate install && \
+./vcpkg integrate bash && \
+echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
+echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
