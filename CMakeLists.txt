@@ -4,9 +4,7 @@ project(rctl VERSION 0.1.0)
 
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
-
-
-
+find_package(Doxygen)
 
 add_executable(main-test tests/tests.cpp)
 
@@ -16,4 +14,9 @@ target_link_libraries(main-test PRIVATE fmt::fmt Catch2::Catch2 Catch2::Catch2Wi
 
 include(CTest)
 enable_testing()
-add_test(NAME all COMMAND main-test)
+add_test(NAME tall COMMAND main-test)
+
+doxygen_add_docs(
+  rctl-docs 
+  include/rctl/mod_int.hpp
+)

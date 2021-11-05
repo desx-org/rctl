@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional packages.
  RUN apt-get update \
-     && apt-get -y install --no-install-recommends ninja-build  pkg-config
+     && apt-get -y install --no-install-recommends ninja-build  pkg-config doxygen
 
 RUN apt update
 RUN apt install -y software-properties-common lsb-release
@@ -34,3 +34,5 @@ RUN ./bootstrap-vcpkg.sh && \
 ./vcpkg integrate bash && \
 echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
 echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
+
+RUN vcpkg install fmt catch2
