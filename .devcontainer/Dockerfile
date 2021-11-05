@@ -32,7 +32,6 @@ RUN git clone https://github.com/Microsoft/vcpkg.git .
 RUN ./bootstrap-vcpkg.sh && \
 ./vcpkg integrate install && \
 ./vcpkg integrate bash && \
-echo 'export PATH=$PATH:/opt/vcpkg' >>~/.bashrc \
 echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
 
-RUN vcpkg install fmt catch2
+RUN /opt/vcpkg/vcpkg install fmt catch2
