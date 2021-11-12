@@ -3,6 +3,8 @@
 #include <limits>
 #include <type_traits>
 #include <cstddef>
+namespace rctl
+{
 
 template<typename T>
 constexpr T max_multiple_inv(const T v)
@@ -11,25 +13,32 @@ constexpr T max_multiple_inv(const T v)
  
    return ret==0?v:ret;
 }
-
 template<typename T>
 constexpr bool is_power_of_2(const T val) 
 {
-   if(val == 0) return false;
-   else if(val == 1) return true;
-   else if(val & 1) return false; 
+   if(val == 1) return true;
+   else if((val == 0) || (val & 1)) return false; 
    else return is_power_of_2(val >> 1);
 }
 
+//*****************************************************************************
+///\brief The max multiple of a number within the valid range for an integer 
+/// arithmetic type. 
+//*****************************************************************************
 template<typename T>
 constexpr T max_multiple(const T v)
 {
    if (is_power_of_2(v)) 
       return 0;
    else
-   return std::numeric_limits<T>::max() - max_multiple_inv(v) + 1;
+      return std::numeric_limits<T>::max() - max_multiple_inv(v) + 1;
 }
 
+
+//*****************************************************************************
+///\defgroup mod_int modulo integer 
+/// An integer where operations are performed modulo a compile time value   
+//*****************************************************************************
 template<typename INT_TYPE ,INT_TYPE mod_val>
 class mod_int
 {
@@ -116,3 +125,4 @@ class mod_index:public mod_int<T,max_multiple<T>(S)>
       return val()%S; 
    }
 };
+}

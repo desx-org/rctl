@@ -1,15 +1,16 @@
-#include "rctl/mod_int.hpp"
+#include "rctl/modulo_int.hpp"
 #include "fmt/format.h"
 #include "catch.hpp"
 
 #include <experimental/array>
 #include <vector>
 
+using namespace rctl;
+
 TEST_CASE("mod int test","")
 {
    SECTION("is power of 2 test")
    {   
-
       REQUIRE(is_power_of_2<uint8_t>(1 ) == true); 
       REQUIRE(is_power_of_2<uint8_t>(2 ) == true); 
       REQUIRE(is_power_of_2<uint8_t>(4 ) == true); 

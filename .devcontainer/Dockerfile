@@ -4,10 +4,6 @@
 ARG VARIANT="ubuntu-21.04"
 FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 
-# [Optional] Uncomment this section to install additional packages.
- RUN apt-get update \
-     && apt-get -y install --no-install-recommends ninja-build  pkg-config doxygen
-
 RUN apt update
 RUN apt install -y software-properties-common lsb-release
 RUN apt clean all
@@ -18,8 +14,11 @@ RUN apt update
 RUN apt install -y kitware-archive-keyring 
 RUN rm /etc/apt/trusted.gpg.d/kitware.gpg
 RUN apt update
-RUN apt install -y cmake
 
+ RUN apt-get update \
+     && apt-get -y install --no-install-recommends cmake clang-tidy ninja-build  pkg-config doxygen python3-sphinx clang-format python3-pip
+
+RUN pip install sphinx_rtd_theme && pip install breathe 
 
 RUN mkdir /opt/vcpkg && chmod ugo+rwx /opt/vcpkg
 
