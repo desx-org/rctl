@@ -23,4 +23,4 @@ jobs:
         make
     
     - name: Run tests
-      run: ./test/etl_tests
+      run: ./test/rctl_tests
