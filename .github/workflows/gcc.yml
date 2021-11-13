@@ -18,6 +18,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup 
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y libfmt-dev
+
     - name: Build
       run: |
         cmake ./
