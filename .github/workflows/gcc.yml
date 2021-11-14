@@ -1,33 +1,9 @@
-name: catch-test 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  workflow_dispatch:
-    branches: [ master ]
-
-jobs:
-  test-all:
-    name: Linux 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup 
-      run: |
-        sudo apt-get update -y
-        sudo apt-get install -y libfmt-dev catch
-
-    - name: Build
-      run: |
-        cmake ./
-        gcc --version
-        make
-    
-    - name: Run tests
-      run: ./test/rctl_tests
+# action.yml
+name: 'Hello World'
+description: 'Greet someone and record the time'
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
