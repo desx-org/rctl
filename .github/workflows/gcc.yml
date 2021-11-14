@@ -1,5 +1,9 @@
 # action.yml
 name: 'Hello World'
+on:
+  workflow_dispatch:
+    branches: [ master ]
+
 description: 'Greet someone and record the time'
 outputs:
   time: # id of output
