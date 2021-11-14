@@ -34,3 +34,8 @@ RUN ./bootstrap-vcpkg.sh && \
 echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
 
 RUN /opt/vcpkg/vcpkg install fmt catch2
+
+COPY entrypoint.sh /entrypoint.sh
+
+# Code file to execute when the docker container starts up (`entrypoint.sh`)
+ENTRYPOINT ["/entrypoint.sh"]
