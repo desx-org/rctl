@@ -8,7 +8,7 @@ RUN apt update
 RUN apt install -y software-properties-common --no-install-recommends cmake clang-tidy ninja-build pkg-config doxygen python3-sphinx clang-format python3-pip lsb-release snapd
 RUN apt clean all
 RUN apt remove -y --purge --auto-remove cmake
-RUN snap install cmake --clasic
+RUN snap install cmake --classic
 RUN pip install sphinx_rtd_theme && pip install breathe 
 
 RUN mkdir /opt/vcpkg && chmod ugo+rwx /opt/vcpkg
