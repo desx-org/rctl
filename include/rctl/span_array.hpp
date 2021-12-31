@@ -36,6 +36,7 @@ class data_view
    }
    T * begin(){return begin_;}
    T * end(){return end_;}
+
    private:
    T* begin_ = nullptr;
    T* end_ = nullptr;

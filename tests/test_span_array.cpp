@@ -2,6 +2,9 @@
 #include "fmt/format.h"
 #include <catch.hpp>
 #include <vector>
+#include <experimental/array>
+
+using namespace std::experimental;
 
 TEST_CASE("aix buffer test","")
 {
@@ -54,14 +57,14 @@ TEST_CASE("aix buffer test","")
          char b[] = {'c','d','e'};
          char c[] = {'f','g','h'};
    
-         d1[0] = {a,sizeof(a)};
-         d1[1] = {b,sizeof(b)};
-         d1[2] = {c,sizeof(c)};
+         d1[0] = {a, sizeof(a)};
+         d1[1] = {b, sizeof(b)};
+         d1[2] = {c, sizeof(c)};
    
-         char v[] = {'x','y','z'};
-         d1.copy_tx({{v,sizeof(v)}});
-         
-         //REQUIRE(std::to_array(v) == std::to_array<char>({'a','b','c'}));
+         char v1[] = {'a','b','c',0};
+         //d1.copy_tx({{v,sizeof(v)}});
+         char v2[] = {'a','b','c',0};
+         //REQUIRE(make_array(v1) == make_array(v2));
       }
    }
 }

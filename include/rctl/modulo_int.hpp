@@ -16,9 +16,13 @@ constexpr T max_multiple_inv(const T v)
 template<typename T>
 constexpr bool is_power_of_2(const T val) 
 {
+   #if 0
+   return false;
+   #else
    if(val == 1) return true;
    else if((val == 0) || (val & 1)) return false; 
    else return is_power_of_2(val >> 1);
+   #endif
 }
 
 //*****************************************************************************
