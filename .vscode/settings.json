@@ -2,5 +2,8 @@
     "editor.tabSize": 2,
     "cmake.configureSettings": {
        "cmake.buildDirectory": "${workspaceFolder}/build/${variant:buildVariant}-${buildType}"
+    },
+    "files.associations": {
+        "vector": "cpp"
     }
 }

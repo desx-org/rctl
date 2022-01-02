@@ -9,6 +9,7 @@ find_package(Doxygen)
 add_executable(main-test 
   tests/test_modulo_int.cpp
   tests/test_span_array.cpp
+  tests/test_circular_buffer.cpp
 )
 
 target_include_directories(main-test PRIVATE include)
@@ -28,6 +29,7 @@ doxygen_add_docs(
   rctl-docs 
   include/rctl/modulo_int.hpp
   include/rctl/span_array.hpp
+  include/rctl/circular_buffer.hpp
   ALL
   USE_STAMP_FILE
 )

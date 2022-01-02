@@ -49,7 +49,7 @@ class mod_int
    public:
 
    using this_t = mod_int<INT_TYPE, mod_val>;
-
+   
    mod_int(INT_TYPE val_in)
    {
       if(!mod_val)

@@ -15,7 +15,7 @@ TEST_CASE("aix buffer test","")
    }
    SECTION("data view tests")
    {
-#if 0
+#if 1
       {
 
       mdata_view<char,2> d1;
