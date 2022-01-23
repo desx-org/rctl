@@ -5,9 +5,11 @@
 
 #include "modulo_int.hpp"
 #include "span_array.hpp"
+namespace rctl
+{
 
 template<typename T, size_t S>
-class axe_block
+class circular_buffer_base 
 {
    public:
 
@@ -19,21 +21,9 @@ class axe_block
 
    constexpr static idx first_index() {return 0;}
 
-#if 0
-   template<typename T, size_t S>
-   class axe_loc
+   dta2x get_dataview(idx begin ,idx end)
    {
-      public:
-      axe_loc(axe_block& parent):p(parent){}
-      private:
-      parent & p;
-      
-   };
-#endif
-   using data2x = mdata_view<T,2>;
-   data2x get_dataview(idx begin ,idx end)
-   {
-      data2x ret;
+      dta2x ret;
       if(begin.index() <= end.index())
       {
          ret[0] = {buffer.data() + begin.index(),buffer.data() + end.index()};
@@ -88,8 +78,46 @@ class axe_block
 
 };
 
-template<typename T, size_t S>
-class axe_buffer:public axe_block<T, S>
+template<typename T, size_t S, typename idx_t = uint32_t>
+class circular_buffer:public circular_buffer_base<T, S>
 {
-  // void enque(T * begin, )   
+   using cir_buff =  circular_buffer<T,S,idx_t>;
+   public:
+   circular_buffer():circular_buffer_base<T,S>()
+   {
+
+   }
+   using idx = rctl::mod_index<idx_t,S>;
+
+   //T & location(int location)
+   //{
+   //   return buffer[(added + location).index()];
+   //}
+
+   //template<typename T, size_t S,typename idx_t>
+   class iterator:public idx
+   {
+      public:
+      iterator(cir_buff & p_):p(p_),idx(p.added){}
+      iterator(cir_buff & p_, idx idx_in):p(p_),idx(idx_in){}
+
+      T & operator *()
+      {
+         return p.buffer[idx::index()];
+      } 
+      iterator operator ++(){idx::operator++();return *this;}
+      iterator operator ++(int){auto tmp = *this;idx::operator++();return tmp;}
+      private:
+      cir_buff & p;
+   };
+
+   iterator current()
+   {
+      return iterator(*this);
+   }
+
+
+   idx added;
 };
+
+}

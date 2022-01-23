@@ -50,6 +50,8 @@ class mod_int
 
    using this_t = mod_int<INT_TYPE, mod_val>;
    
+   mod_int():val_(0){};
+
    mod_int(INT_TYPE val_in)
    {
       if(!mod_val)
@@ -120,6 +122,7 @@ class mod_index:public mod_int<T,max_multiple<T>(S)>
 
    using P = mod_int<T,max_multiple<T>(S)>;
 
+   mod_index():P(0){}
    mod_index(T v):P(v){}
    mod_index(P v):P(v){}
    using P::val;
