@@ -43,7 +43,7 @@ constexpr T max_multiple(const T v)
 ///\defgroup mod_int modulo integer 
 /// An integer where operations are performed modulo a compile time value   
 //*****************************************************************************
-template<typename INT_TYPE ,INT_TYPE mod_val>
+template<typename INT_TYPE ,INT_TYPE mod_val,bool mark = false>
 class mod_int
 {
    public:
@@ -114,6 +114,8 @@ class mod_int
    private:
    INT_TYPE val_;
 };
+
+
 
 template<typename T,size_t S>
 class mod_index:public mod_int<T,max_multiple<T>(S)>
