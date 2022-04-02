@@ -7,20 +7,67 @@
 #include "span_array.hpp"
 namespace rctl
 {
+template<typename T, size_t S,typename idx_t = uint32_t>
+class circular_buffer_base;
 
-template<typename T, size_t S>
+
+template<typename T, size_t S,typename idx_t >
 class circular_buffer_base 
 {
    public:
 
    size_t size(){return S;}
 
-   using idx = rctl::mod_index<T,S>;
+   using idx = rctl::mod_index<idx_t,S>;
 
    using dta2x = mdata_view<T,2>;
+   using this_t = circular_buffer_base<T,S,idx_t>;
+
+   struct iterator;
+   struct iterator_ro;
+
+   struct iterator_ro:public idx
+   {
+      iterator_ro(iterator & base_,idx_t start):base_it(base_),idx(base_it.val()){}
+      iterator & base_it;
+      T & operator *()
+      {
+         return base_it.base_buffer.buffer[idx::index()];
+      }
+      iterator begin()
+      {
+         return iterator(base_it.base_buffer,base_it.val());
+      }
+      iterator end()
+      {
+         return base_it;
+      }
+   };
+
+   struct iterator:public idx
+   {
+      iterator(this_t & base_,idx_t start):base_buffer(base_),idx(start){}
+      this_t & base_buffer;
+      T & operator *()
+      {
+         return base_buffer.buffer[idx::index()];
+      }
+      iterator_ro new_reader()
+      {
+         return iterator_ro(*this,idx::val());
+      }
+   };
+
+   iterator begin()
+   {
+      return iterator(*this,0);
+   }
+   iterator end()
+   {
+      return iterator(*this,(idx_t)S);
+   }
 
    constexpr static idx first_index() {return 0;}
-
    dta2x get_dataview(idx begin ,idx end)
    {
       dta2x ret;
@@ -77,13 +124,21 @@ class circular_buffer_base
    std::array<T, S> buffer;
 
 };
+template<typename T,size_t S>
+class buffer_loc
+{
+   using base_buff_t = circular_buffer_base<T,S>;
+   //buffer_loc(base_buff_t & buff_):buff(buff_){}
+
+   //base_buff_t & buff;
+};
 
 template<typename T, size_t S, typename idx_t = uint32_t>
 class circular_buffer:public circular_buffer_base<T, S>
 {
    using cir_buff =  circular_buffer<T,S,idx_t>;
    public:
-   circular_buffer():circular_buffer_base<T,S>()
+   circular_buffer():circular_buffer_base<T,S,idx_t>()
    {
 
    }

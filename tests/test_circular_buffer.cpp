@@ -13,6 +13,24 @@ TEST_CASE("circular buffer test","")
 {
   SECTION("basice circular buffer test")
   {
+      circular_buffer_base<uint8_t,2> b1;
+      for(auto & i:b1)
+      {
+         i = 4; 
+      }
+      for(auto & i:b1)
+      {
+        REQUIRE(i == 4);
+      }
+      auto writer = b1.begin();
+      auto reader = writer.new_reader();
+      for(auto i:reader)
+      {
+         
+      }
+  }
+  SECTION("basice circular buffer test")
+  {
       circular_buffer<uint8_t,2> b1;
       auto t1 = b1.current();
 

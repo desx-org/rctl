@@ -125,6 +125,10 @@ TEST_CASE("mod int test","")
    SECTION("mod index test")
    {
       mod_index<uint8_t,5>  f1 = (uint8_t)22;
+
+      REQUIRE((int)f1.get_mod_val() == 125);
+
+      REQUIRE(f1.val() == 22);
       REQUIRE(f1.val() == 22);
       REQUIRE(f1.index() == 2);
       f1++; 
@@ -140,19 +144,20 @@ TEST_CASE("mod int test","")
       REQUIRE(f1.val() == 35);
       REQUIRE(f1.index() == 0);
       f1+=100; 
-      REQUIRE(f1.val() == 135);
+
+      REQUIRE(f1.val() == 10);
       REQUIRE(f1.index() == 0);
       f1+=1; 
-      REQUIRE(f1.val() == 136);
+      REQUIRE(f1.val() == 11);
       REQUIRE(f1.index() == 1);
       f1+=110; 
-      REQUIRE(f1.val() == 246);
+      REQUIRE(f1.val() == 121);
       REQUIRE(f1.index() == 1);
       f1+=10; 
-      REQUIRE(f1.val() ==   1);
+      REQUIRE(f1.val() ==   6);
       REQUIRE(f1.index() == 1);
       f1-=10; 
-      REQUIRE(f1.val() == 246);
+      REQUIRE(f1.val() == 121);
       REQUIRE(f1.index() == 1);
    }
 }

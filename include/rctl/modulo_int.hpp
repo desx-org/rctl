@@ -7,9 +7,9 @@ namespace rctl
 {
 
 template<typename T>
-constexpr T max_multiple_inv(const T v)
+constexpr T max_multiple_inv(const T v,const T limit = std::numeric_limits<T>::max())
 {
-   auto ret = (std::numeric_limits<T>::max() - v + 1)%v;
+   auto ret = (limit - v + 1)%v;
  
    return ret==0?v:ret;
 }
@@ -30,12 +30,17 @@ constexpr bool is_power_of_2(const T val)
 /// arithmetic type. 
 //*****************************************************************************
 template<typename T>
-constexpr T max_multiple(const T v)
+constexpr T max_multiple(const T v,const T limit = std::numeric_limits<T>::max())
 {
    if (is_power_of_2(v)) 
       return 0;
    else
-      return std::numeric_limits<T>::max() - max_multiple_inv(v) + 1;
+      return limit - max_multiple_inv(v,limit) + 1;
+}
+template<typename T>
+constexpr T max_multiple_div2(const T v)
+{
+      return max_multiple(v,(T)(std::numeric_limits<T>::max()>>1));
 }
 
 
@@ -51,7 +56,10 @@ class mod_int
    using this_t = mod_int<INT_TYPE, mod_val>;
    
    mod_int():val_(0){};
-
+   INT_TYPE get_mod_val() const
+   {
+      return mod_val;
+   }
    mod_int(INT_TYPE val_in)
    {
       if(!mod_val)
@@ -72,7 +80,14 @@ class mod_int
 
          if (!is_power_of_2(mod_val)) 
          {
-            if(new_val < val_){ new_val += max_multiple_inv(mod_val);}
+            if(new_val < val_)
+            { 
+               new_val += max_multiple_inv(mod_val);
+               if(mark)
+               {
+                  new_val |= (1 <<(sizeof(new_val)*8)-1);
+               }
+            }
          }
 
          return new_val%mod_val;
@@ -101,7 +116,7 @@ class mod_int
    mod_int operator ++ (){return operator+=(1); }
    mod_int operator -- (){return operator-=(1); }
 
-   mod_int operator - (){return mod_val - this->val_;}
+   mod_int operator - () {return mod_val - this->val_;}
    mod_int operator - (this_t incr_val) const {return operator +(-incr_val);}
 
    bool operator == (const INT_TYPE val_in) const { return (val_ == val_in); }
@@ -118,11 +133,11 @@ class mod_int
 
 
 template<typename T,size_t S>
-class mod_index:public mod_int<T,max_multiple<T>(S)>
+class mod_index:public mod_int<T,max_multiple_div2<T>(S)>
 {
    public:
 
-   using P = mod_int<T,max_multiple<T>(S)>;
+   using P = mod_int<T,max_multiple_div2<T>(S)>;
 
    mod_index():P(0){}
    mod_index(T v):P(v){}
