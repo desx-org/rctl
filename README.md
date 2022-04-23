@@ -1,7 +1,9 @@
 # rctl
 Resource Constrained Template Library
 
-This is a collection of c and c++ libraries put together to support embedded development. General principles are This is a work in progress and 
+This is a collection of c and c++ libraries put together to support embedded development.
+
+Libraries:
 
  1. Modulo Int: An class that behaves like a signed integer but instead of rolling over at INT_MAX, it rolls over at a template defined value.
  2. mdata_view: Similar to a std::span but it points to fragmented memory 
