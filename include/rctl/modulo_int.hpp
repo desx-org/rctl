@@ -108,7 +108,7 @@ class mod_int
       }
       else if constexpr (d_mark == mark_t::iroll)
       {
-         if(ret.val() >= val())
+         if(ret.val() > val())
          { 
             ret.val_ |= mark_mask;
          }
@@ -152,6 +152,14 @@ class mod_int
          return val_ & val_mask;
       else
          return val_;
+   }
+   bool rollover_marked()
+   {
+      if constexpr (mark)
+         return (val_ & mark_mask)?true:false;
+      else
+         return false;
+
    }
 
    mod_int operator += (this_t incr_val){return (*this = *this + incr_val);}

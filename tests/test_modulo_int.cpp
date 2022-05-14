@@ -129,35 +129,45 @@ TEST_CASE("mod int test","")
       REQUIRE((int)f1.get_mod_val() == 125);
 
       REQUIRE(f1.val() == 22);
-      REQUIRE(f1.val() == 22);
       REQUIRE(f1.index() == 2);
+
+      REQUIRE(f1.rollover_marked() == false);
+
       f1++; 
       REQUIRE(f1.val() == 23);
       REQUIRE(f1.index() == 3);
+      REQUIRE(f1.rollover_marked() == false);
       ++f1; 
       REQUIRE(f1.val() == 24);
       REQUIRE(f1.index() == 4);
+      REQUIRE(f1.rollover_marked() == false);
       ++f1; 
       REQUIRE(f1.val() == 25);
       REQUIRE(f1.index() == 0);
+      REQUIRE(f1.rollover_marked() == false);
       f1+=10; 
       REQUIRE(f1.val() == 35);
       REQUIRE(f1.index() == 0);
+      REQUIRE(f1.rollover_marked() == false);
       f1+=100; 
-
-      REQUIRE((int)f1.val() == (int)10);
+      REQUIRE(f1.val() == 10);
       REQUIRE(f1.index() == 0);
+      REQUIRE(f1.rollover_marked() == true);
       f1+=1; 
       REQUIRE(f1.val() == 11);
       REQUIRE(f1.index() == 1);
+      REQUIRE(f1.rollover_marked() == true);
       f1+=110; 
       REQUIRE(f1.val() == 121);
       REQUIRE(f1.index() == 1);
+      REQUIRE(f1.rollover_marked() == true);
       f1+=10; 
       REQUIRE(f1.val() ==   6);
       REQUIRE(f1.index() == 1);
+      REQUIRE(f1.rollover_marked() == true);
       f1-=10; 
       REQUIRE(f1.val() == 121);
       REQUIRE(f1.index() == 1);
+      REQUIRE(f1.rollover_marked() == true);
    }
 }
