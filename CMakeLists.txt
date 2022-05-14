@@ -25,6 +25,8 @@ add_test(NAME tall COMMAND main-test)
 
 set(DOXYGEN_JAVADOC_AUTOBRIEF YES)
 set(DOXYGEN_TAB_SIZE 2)
+set(DOXYGEN_WARNINGS NO)
+set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
 
 doxygen_add_docs(
   rctl-docs 

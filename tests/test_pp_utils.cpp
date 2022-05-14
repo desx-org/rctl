@@ -36,6 +36,8 @@ TEST_CASE("pp utils test","")
       ,a6,b6,c6,d6,e6,f6,g6,h6
       ,a7,b7,c7,d7,e7,f7,g7
       );
+      #endif
+      #if 0
       for(int i = 0; i < 24;i++)
       {
         REQUIRE(val[i] == i);

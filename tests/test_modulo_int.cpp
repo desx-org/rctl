@@ -145,7 +145,7 @@ TEST_CASE("mod int test","")
       REQUIRE(f1.index() == 0);
       f1+=100; 
 
-      REQUIRE(f1.val() == 10);
+      REQUIRE((int)f1.val() == (int)10);
       REQUIRE(f1.index() == 0);
       f1+=1; 
       REQUIRE(f1.val() == 11);

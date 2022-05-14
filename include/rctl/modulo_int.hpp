@@ -48,12 +48,18 @@ constexpr T max_multiple_div2(const T v)
 ///\defgroup mod_int modulo integer 
 /// An integer where operations are performed modulo a compile time value   
 //*****************************************************************************
+
 template<typename INT_TYPE ,INT_TYPE mod_val,bool mark = false>
 class mod_int
 {
    public:
 
    using this_t = mod_int<INT_TYPE, mod_val>;
+
+   static constexpr size_t bits = sizeof(INT_TYPE)*8;
+
+   static constexpr INT_TYPE mark_mask = 1 << (bits -1);
+   static constexpr INT_TYPE val_mask = static_cast<INT_TYPE>(~mark_mask); 
    
    mod_int():val_(0){};
    INT_TYPE get_mod_val() const
@@ -68,30 +74,62 @@ class mod_int
          val_ = val_in%mod_val;
    };
 
-   mod_int operator + (this_t incr_val) const
+   enum class mark_t{none,roll,iroll};
+
+   template<mark_t d_mark>
+   mod_int adder(this_t incr_val) const
    {
-      if (!mod_val)
+      mod_int ret;
+      if constexpr (!mod_val)
       {
-         return this->val_ + incr_val.val_;
+         ret = this->val() + incr_val.val();
       }
       else
       {
-         INT_TYPE new_val = (val_ + incr_val.val_);
+         INT_TYPE new_val = (val() + incr_val.val());
 
-         if (!is_power_of_2(mod_val)) 
+         if constexpr(!is_power_of_2(mod_val)) 
          {
-            if(new_val < val_)
+            if(new_val < val())
             { 
                new_val += max_multiple_inv(mod_val);
-               if(mark)
-               {
-                  new_val |= (1 <<(sizeof(new_val)*8)-1);
-               }
             }
          }
 
-         return new_val%mod_val;
+         ret = new_val%mod_val;
       }
+
+      if constexpr (d_mark == mark_t::roll)
+      {
+         if(ret.val() < val())
+         { 
+            ret.val_ |= mark_mask;
+         }
+      }
+      else if constexpr (d_mark == mark_t::iroll)
+      {
+         if(ret.val() >= val())
+         { 
+            ret.val_ |= mark_mask;
+         }
+      }
+      return ret;
+   }
+
+   mod_int operator + (this_t incr_val) const
+   {
+      if constexpr (mark)
+         return adder<mark_t::roll>(incr_val);
+      else
+         return adder<mark_t::none>(incr_val);
+   }
+
+   mod_int operator - (this_t incr_val) const 
+   {
+      if constexpr (mark)
+         return adder<mark_t::iroll>(-incr_val);
+      else
+         return adder<mark_t::none>(-incr_val);
    }
 
    mod_int operator ++ (int)
@@ -108,7 +146,13 @@ class mod_int
       return tmp;
    }
 
-   INT_TYPE val() const {return val_;}
+   INT_TYPE val() const 
+   {
+      if constexpr (mark)
+         return val_ & val_mask;
+      else
+         return val_;
+   }
 
    mod_int operator += (this_t incr_val){return (*this = *this + incr_val);}
    mod_int operator -= (this_t incr_val){ return operator+=(-incr_val);}
@@ -117,7 +161,6 @@ class mod_int
    mod_int operator -- (){return operator-=(1); }
 
    mod_int operator - () {return mod_val - this->val_;}
-   mod_int operator - (this_t incr_val) const {return operator +(-incr_val);}
 
    bool operator == (const INT_TYPE val_in) const { return (val_ == val_in); }
    bool operator == (const mod_int val_in) const { return (val_ == val_in.val_);}
@@ -133,11 +176,11 @@ class mod_int
 
 
 template<typename T,size_t S>
-class mod_index:public mod_int<T,max_multiple_div2<T>(S)>
+class mod_index:public mod_int<T,max_multiple_div2<T>(S),true>
 {
    public:
 
-   using P = mod_int<T,max_multiple_div2<T>(S)>;
+   using P = mod_int<T,max_multiple_div2<T>(S),true>;
 
    mod_index():P(0){}
    mod_index(T v):P(v){}
