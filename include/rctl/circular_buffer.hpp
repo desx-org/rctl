@@ -21,6 +21,7 @@ class circular_buffer_base
    using idx = rctl::mod_index<idx_t,S>;
 
    using dta2x = mdata_view<T,2>;
+
    using this_t = circular_buffer_base<T,S,idx_t>;
 
    struct iterator;
@@ -47,11 +48,14 @@ class circular_buffer_base
    struct iterator:public idx
    {
       iterator(this_t & base_,idx_t start):base_buffer(base_),idx(start){}
+
       this_t & base_buffer;
+
       T & operator *()
       {
          return base_buffer.buffer[idx::index()];
       }
+
       iterator_ro new_reader()
       {
          return iterator_ro(*this,idx::val());
@@ -124,6 +128,7 @@ class circular_buffer_base
    std::array<T, S> buffer;
 
 };
+
 template<typename T,size_t S>
 class buffer_loc
 {

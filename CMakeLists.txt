@@ -8,6 +8,7 @@ find_package(Doxygen)
 
 add_executable(main-test 
   tests/test_modulo_int.cpp
+  tests/test_bitfield.cpp
   tests/test_span_array.cpp
   tests/test_circular_buffer.cpp
   tests/test_pp_utils.cpp

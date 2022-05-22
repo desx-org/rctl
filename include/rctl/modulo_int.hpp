@@ -62,10 +62,12 @@ class mod_int
    static constexpr INT_TYPE val_mask = static_cast<INT_TYPE>(~mark_mask); 
    
    mod_int():val_(0){};
+
    INT_TYPE get_mod_val() const
    {
       return mod_val;
    }
+
    mod_int(INT_TYPE val_in)
    {
       if(!mod_val)
@@ -80,9 +82,10 @@ class mod_int
    mod_int adder(this_t incr_val) const
    {
       mod_int ret;
+
       if constexpr (!mod_val)
       {
-         ret = this->val() + incr_val.val();
+         ret = val() + incr_val.val();
       }
       else
       {
@@ -97,6 +100,11 @@ class mod_int
          }
 
          ret = new_val%mod_val;
+      }
+
+      if constexpr (d_mark != mark_t::none)
+      {
+         ret.val_ |= (val_ & mark_mask);
       }
 
       if constexpr (d_mark == mark_t::roll)

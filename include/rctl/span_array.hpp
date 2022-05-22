@@ -16,11 +16,10 @@ class data_view
    }
    data_view(T*a,size_t s)
    {
-
       begin_ = a; 
       end_ = a + s;
-
    }
+
    data_view(T*a,T*b)
    {
       begin_ = a; 
