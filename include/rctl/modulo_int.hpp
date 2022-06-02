@@ -201,7 +201,14 @@ class mod_index:public mod_int<T,max_multiple_div2<T>(S),true>
    mod_index():P(0){}
    mod_index(T v):P(v){}
    mod_index(P v):P(v){}
+
    using P::val;
+   using P::rollover_marked;
+
+   bool saturated()
+   {
+      return rollover_marked() || (val() >= S);
+   }
 
    T index()
    {

@@ -44,6 +44,23 @@ TEST_CASE("circular buffer test","")
   }
   SECTION("basice circular buffer test size 8")
   {
+      circular_buffer<uint8_t,8> b1;
+      b1.emplace_back(1);
+      b1.emplace_back(2);
+      int idx = 1;
+      for(auto i:b1)
+      {
+        REQUIRE(i == idx);
+        ++idx;
+      }
+      REQUIRE(idx == 3);
+      auto loc = b1.begin();
+      REQUIRE((int)*loc == 1);
+      ++loc;
+      REQUIRE((int)*loc == 2);
+  }
+  SECTION("basice circular buffer test size 8")
+  {
       circular_buffer<uint8_t,8> b1 = {};
       auto t1 = b1.current();
 

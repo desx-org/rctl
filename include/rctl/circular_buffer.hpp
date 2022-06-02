@@ -138,23 +138,47 @@ class buffer_loc
    //base_buff_t & buff;
 };
 
-template<typename T, size_t S, typename idx_t = uint32_t>
-class circular_buffer:public circular_buffer_base<T, S>
+template<typename T>
+struct naked_block
 {
-   using cir_buff =  circular_buffer<T,S,idx_t>;
-   public:
-   circular_buffer():circular_buffer_base<T,S,idx_t>()
+   template<typename...Args>
+   void emplace(Args&&...args){
+       ::new (mem) T(std::forward<Args>(args)...);
+   };
+
+   const 
+   T & ref() const {return *reinterpret_cast<T*>(mem);}
+   T & ref()       {return *reinterpret_cast<T*>(mem);}
+   template<typename U>
+   T & operator = (U && other)
    {
+      return ref() = other;
 
    }
+   void destroy()
+   {
+       ref().~T();
+   }
+   uint8_t mem[sizeof(T)];
+};
+
+
+template<typename T, size_t S, typename idx_t = uint32_t>
+class circular_buffer:public circular_buffer_base<naked_block<T>, S,idx_t>
+{
+   using cir_buff = circular_buffer<T,S,idx_t>;
+
    using idx = rctl::mod_index<idx_t,S>;
 
-   //T & location(int location)
-   //{
-   //   return buffer[(added + location).index()];
-   //}
+   public:
 
-   //template<typename T, size_t S,typename idx_t>
+   template<typename...Args>
+   void emplace_back(Args&&...args)
+   {
+      end().emplace(std::forward<Args>(args)...);
+      ++added;
+   }
+
    class iterator:public idx
    {
       public:
@@ -163,10 +187,22 @@ class circular_buffer:public circular_buffer_base<T, S>
 
       T & operator *()
       {
-         return p.buffer[idx::index()];
+         return p.buffer[idx::index()].ref();
       } 
       iterator operator ++(){idx::operator++();return *this;}
       iterator operator ++(int){auto tmp = *this;idx::operator++();return tmp;}
+
+      template<typename...Args>
+      void emplace(Args&&...args)
+      {
+         auto & loc = p.buffer[idx::index()];
+         if(idx::saturated())
+         {
+            loc.destroy();
+         }
+         loc.emplace(std::forward<Args>(args)...);
+      };
+
       private:
       cir_buff & p;
    };
@@ -176,7 +212,15 @@ class circular_buffer:public circular_buffer_base<T, S>
       return iterator(*this);
    }
 
+   iterator begin()
+   {
+      return iterator(*this, added.saturated()?added - S:0);
+   }
 
+   iterator end()
+   {
+      return iterator(*this,added);
+   }
    idx added;
 };
 
