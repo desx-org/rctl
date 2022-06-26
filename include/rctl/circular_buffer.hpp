@@ -149,6 +149,7 @@ struct naked_block
    const 
    T & ref() const {return *reinterpret_cast<T*>(mem);}
    T & ref()       {return *reinterpret_cast<T*>(mem);}
+
    template<typename U>
    T & operator = (U && other)
    {
@@ -178,6 +179,16 @@ class circular_buffer:public circular_buffer_base<naked_block<T>, S,idx_t>
       end().emplace(std::forward<Args>(args)...);
       ++added;
    }
+   void push_back(T & val)
+   {
+      end().emplace(val);
+      ++added;
+   }
+   void push_back(T && val)
+   {
+      end().emplace(std::forward<T>(val));
+      ++added;
+   }
 
    class iterator:public idx
    {
@@ -189,6 +200,7 @@ class circular_buffer:public circular_buffer_base<naked_block<T>, S,idx_t>
       {
          return p.buffer[idx::index()].ref();
       } 
+
       iterator operator ++(){idx::operator++();return *this;}
       iterator operator ++(int){auto tmp = *this;idx::operator++();return tmp;}
 
@@ -221,6 +233,7 @@ class circular_buffer:public circular_buffer_base<naked_block<T>, S,idx_t>
    {
       return iterator(*this,added);
    }
+
    idx added;
 };
 
