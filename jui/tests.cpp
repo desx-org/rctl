@@ -17,26 +17,26 @@ using namespace fmt;
 #include <list>
 #include <vector>
 
-auto box0 = LR"(abcd
+auto box0 = R"(abcd
 efgh)";
 
 auto box0a = 
-LR"(bcd
+R"(bcd
 fgh)";
 auto box0b = 
-LR"(abc
+R"(abc
 efg)";
-auto box0c = LR"(abcd-
+auto box0c = R"(abcd-
 efgh-)";
 
 struct mega_curser
 {
-    mega_curser(std::wstring v_):v(v_)
+    mega_curser(std::string v_):v(v_)
     {
 
     }
 
-    bool printable(wchar_t c)
+    bool printable(char c)
     {
         switch(c)
         {
@@ -45,7 +45,7 @@ struct mega_curser
             default:return true;
         }
     }
-    wchar_t val(int x,int y)
+    char val(int x,int y)
     {
         if((x > tx) || (y > ty))
         {
@@ -81,17 +81,17 @@ struct mega_curser
     }
 
     private:
-    wchar_t fill = L'-';
-    std::wstring v;
+    char fill = L'-';
+    std::string v;
     int tx = -1;
     int ty = -1;
-    std::wstring::iterator i = v.begin();
+    std::string::iterator i = v.begin();
 };
 
 template<typename T>
-std::wstring render(T v, box_t box) 
+std::string render(T v, box_t box) 
 {
-    std::wstring ret = L"";
+    std::string ret = "";
 
     int y = box.a.y; 
 
@@ -109,7 +109,7 @@ std::wstring render(T v, box_t box)
     return ret;
 }
 
-void render_tst(const wchar_t * inp, const wchar_t *ans, box_t loc) 
+void render_tst(const char * inp, const char *ans, box_t loc) 
 {
     auto c = mega_curser(inp);
     auto r = render(c,loc);
@@ -118,45 +118,41 @@ void render_tst(const wchar_t * inp, const wchar_t *ans, box_t loc)
 
 TEST_CASE("aix buffer test","foo")
 {
-    render_tst(L"",L""           ,{{0,0},{0,1}});
-    render_tst(L"",L""           ,{{0,0},{1,0}});
-    render_tst(L"",L"-"          ,{{0,0},{1,1}});
-    render_tst(L"",L"--"         ,{{0,0},{2,1}});
-    render_tst(L"",L"--\n--"     ,{{0,0},{2,2}});
 
-    render_tst(box0,L"a"         ,{{0,0},{1,1}});
-    render_tst(box0,L"ab"        ,{{0,0},{2,1}});
-    render_tst(box0,L"abc"       ,{{0,0},{3,1}});
-    render_tst(box0,L"abcd"      ,{{0,0},{4,1}});
-    render_tst(box0,L"abcd-"     ,{{0,0},{5,1}});
-    render_tst(box0,L"abcd--"    ,{{0,0},{6,1}});
-    render_tst(box0,L"abcd---"   ,{{0,0},{7,1}});
 
-    render_tst(box0,L""         ,{{1,0},{1,1}});
-    render_tst(box0,L"b"        ,{{1,0},{2,1}});
-    render_tst(box0,L"bc"       ,{{1,0},{3,1}});
-    render_tst(box0,L"bcd"      ,{{1,0},{4,1}});
-    render_tst(box0,L"bcd-"     ,{{1,0},{5,1}});
-    render_tst(box0,L"bcd--"    ,{{1,0},{6,1}});
-    render_tst(box0,L"bcd---"   ,{{1,0},{7,1}});
+    render_tst(box0,"a"         ,{{0,0},{1,1}});
+    render_tst(box0,"ab"        ,{{0,0},{2,1}});
+    render_tst(box0,"abc"       ,{{0,0},{3,1}});
+    render_tst(box0,"abcd"      ,{{0,0},{4,1}});
+    render_tst(box0,"abcd-"     ,{{0,0},{5,1}});
+    render_tst(box0,"abcd--"    ,{{0,0},{6,1}});
+    render_tst(box0,"abcd---"   ,{{0,0},{7,1}});
 
-    render_tst(box0,L"a\ne"            ,{{0,0},{1,2}});
-    render_tst(box0,L"ab\nef"          ,{{0,0},{2,2}});
-    render_tst(box0,L"abc\nefg"        ,{{0,0},{3,2}});
-    render_tst(box0,L"abcd\nefgh"      ,{{0,0},{4,2}});
-    render_tst(box0,L"abcd-\nefgh-"    ,{{0,0},{5,2}});
-    render_tst(box0,L"abcd--\nefgh--"  ,{{0,0},{6,2}});
-    render_tst(box0,L"abcd---\nefgh---",{{0,0},{7,2}});
+    render_tst(box0,""         ,{{1,0},{1,1}});
+    render_tst(box0,"b"        ,{{1,0},{2,1}});
+    render_tst(box0,"bc"       ,{{1,0},{3,1}});
+    render_tst(box0,"bcd"      ,{{1,0},{4,1}});
+    render_tst(box0,"bcd-"     ,{{1,0},{5,1}});
+    render_tst(box0,"bcd--"    ,{{1,0},{6,1}});
+    render_tst(box0,"bcd---"   ,{{1,0},{7,1}});
 
-    render_tst(box0,L"\n"            ,{{1,0},{1,2}});
-    render_tst(box0,L"b\nf"          ,{{1,0},{2,2}});
-    render_tst(box0,L"bc\nfg"        ,{{1,0},{3,2}});
-    render_tst(box0,L"bcd\nfgh"      ,{{1,0},{4,2}});
-    render_tst(box0,L"bcd-\nfgh-"    ,{{1,0},{5,2}});
-    render_tst(box0,L"bcd--\nfgh--"  ,{{1,0},{6,2}});
-    render_tst(box0,L"bcd---\nfgh---",{{1,0},{7,2}});
-    render_tst(box0,L"abcd\nefgh",{{0,0},{4,2}});
-    render_tst(box0,L"bcd\nfgh"  ,{{1,0},{4,2}});
+    render_tst(box0,"a\ne"            ,{{0,0},{1,2}});
+    render_tst(box0,"ab\nef"          ,{{0,0},{2,2}});
+    render_tst(box0,"abc\nefg"        ,{{0,0},{3,2}});
+    render_tst(box0,"abcd\nefgh"      ,{{0,0},{4,2}});
+    render_tst(box0,"abcd-\nefgh-"    ,{{0,0},{5,2}});
+    render_tst(box0,"abcd--\nefgh--"  ,{{0,0},{6,2}});
+    render_tst(box0,"abcd---\nefgh---",{{0,0},{7,2}});
+
+    render_tst(box0,"\n"            ,{{1,0},{1,2}});
+    render_tst(box0,"b\nf"          ,{{1,0},{2,2}});
+    render_tst(box0,"bc\nfg"        ,{{1,0},{3,2}});
+    render_tst(box0,"bcd\nfgh"      ,{{1,0},{4,2}});
+    render_tst(box0,"bcd-\nfgh-"    ,{{1,0},{5,2}});
+    render_tst(box0,"bcd--\nfgh--"  ,{{1,0},{6,2}});
+    render_tst(box0,"bcd---\nfgh---",{{1,0},{7,2}});
+    render_tst(box0,"abcd\nefgh",{{0,0},{4,2}});
+    render_tst(box0,"bcd\nfgh"  ,{{1,0},{4,2}});
 
     #if 0
     {
