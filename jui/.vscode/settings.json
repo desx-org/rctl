@@ -1,4 +1,8 @@
 {
     "cmake.allowCommentsInPresetsFile": true,
-    "json.schemaDownload.enable": true
+    "json.schemaDownload.enable": true,
+    "files.associations": {
+        "*.tcc": "cpp",
+        "string": "cpp"
+    }
 }

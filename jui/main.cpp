@@ -30,6 +30,7 @@ volatile int       flag_quit             =0;
 static jfifo<int,8> sigs;
 static jfifo<uint32_t,8> keys;
 
+#if 0
 static void sigwinchHandler(int sig)
 {
     sigs.push(sig);
@@ -103,9 +104,7 @@ void run_loop()
 //Graphics Visualization
 //PACKAGE 
 //Web Deployment
-
 void sig_io(int signo)
-
 {
     sigs.push(signo);
 
@@ -154,11 +153,28 @@ void sig_io(int signo)
         }
     }
 }
-
+#endif
+#include "wchar.h"
 int main(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
+
+    wchar_t hello[7] = {
+        0x41f, 0x440, 0x438, 0x432, 0x435, 0x442, 0x021
+    };
+    int x;
+
+    setlocale(LC_CTYPE,"UTF-8");
+    putchar('-');
+    putchar('>');
+    for(x=0;x<7;x++)
+        putwchar(hello[x]);
+    putchar('<');
+    putchar('-');
+    putchar('\n');
+
+    #if 0
     struct termios term;
     tcgetattr(0, &term);
     term.c_lflag &= ~(ICANON|ECHO); // turn off line buffering and echoing
@@ -191,4 +207,5 @@ int main(int argc, char **argv)
     fmt::print("signals caught  : {}\n",count_signals_caught  );
 
     return 0;
+   #endif
 }

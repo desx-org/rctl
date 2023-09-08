@@ -37,12 +37,14 @@ target_compile_options(${MAIN_EXE} PUBLIC -flto -g3 -Wall -Wextra -Werror)
 #TEST
 #----------------------------------------------------------------------
 
-#set(MAIN_TEST main_test)
+set(MAIN_TEST main_test)
 #
-#add_executable(${MAIN_TEST} tests.cpp)
-#target_link_libraries(${MAIN_TEST} ${LIB_NAME})
-#target_link_libraries(${MAIN_TEST} fmt::fmt)
-#target_link_libraries(${MAIN_TEST} Catch2::Catch2 Catch2::Catch2WithMain)
-#enable_testing()
-#add_custom_command(TARGET ${MAIN_TEST} POST_BUILD COMMAND ${CMAKE_COMMAND} -E echo  "target dir = $<TARGET_FILE:${MAIN_TEST}>")
-#add_test(NAME test_util COMMAND $<TARGET_FILE:${MAIN_TEST}>)
+add_executable(${MAIN_TEST} tests.cpp)
+target_link_libraries(${MAIN_TEST} ${LIB_NAME})
+target_link_libraries(${MAIN_TEST} fmt::fmt)
+target_link_libraries(${MAIN_TEST} Catch2::Catch2 Catch2::Catch2WithMain)
+
+enable_testing()
+
+add_custom_command(TARGET ${MAIN_TEST} POST_BUILD COMMAND ${CMAKE_COMMAND} -E echo  "target dir = $<TARGET_FILE:${MAIN_TEST}>")
+add_test(NAME test_util COMMAND $<TARGET_FILE:${MAIN_TEST}>)

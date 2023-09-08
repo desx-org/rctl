@@ -43,6 +43,7 @@ void resizeHandler(int) {resize_event.trigger();}
 
 std::string do_thing(int num)
 {
+    #if 0
     struct sigaction act;
     act.sa_handler = intHandler;
     sigaction(SIGINT, &act, NULL);
@@ -67,5 +68,6 @@ std::string do_thing(int num)
         }
         sleep(0.01);
     }
+    #endif
     return fmt::format("do thing: {}",num);
 }

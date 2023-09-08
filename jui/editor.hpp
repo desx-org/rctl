@@ -36,21 +36,34 @@ struct point_t
     bool l_edge(const box_t & box);
     bool r_edge(const box_t & box);
 };
+
 struct box_t 
 {
     point_t a;
     point_t b;
 };
+#if 0
 struct theme_t
 {
     fmt::v10::color fg_color     = fmt::color::red; 
     fmt::v10::color bg_color     = fmt::color::black;
     fmt::v10::color canvas_color = fmt::color::dark_violet;
 };
-
+/*
 struct text_box_t:public box_t
 {
-    std::vector<std::wstring> text; 
+    //void set_text(const wchar_t text[])
+
+    void set_text(std::wstring text_)
+    {
+        text = text_;
+    }
+    std::wstring render(int x, int y) 
+    {
+        return text;
+    }
+    //std::vector<std::wstring> text; 
+
     sz2d_t offset;
     theme_t theme;
     wchar_t c(const point_t &point)
@@ -58,7 +71,11 @@ struct text_box_t:public box_t
         (void)point;
         return ' '; 
     }
+    private:
+    std::wstring text; 
+
 };
+*/
 
 struct line_number_box_t:public box_t
 {
@@ -73,11 +90,14 @@ struct command_bar_t:public box_t
 {
 
 };
+
+/*
 struct editor_box_t:public box_t
 {
     text_box_t text_box;
     line_number_box_t line_numbers;
 };
+*/
 
 bool point_t::h_in(const box_t & box){return (box.a.x <= x) && (x < box.b.x);}
 bool point_t::v_in(const box_t & box){return (box.a.y <= y) && (y < box.b.y);}
@@ -215,3 +235,60 @@ struct gui
         return std::string(buff.begin(),buff.end());
     }
 };
+
+struct text_box_t 
+{
+    struct render_t
+    {
+        render_t(const text_box_t & text_box)
+        {
+
+        }
+        struct iterator
+        {
+            iterator operator ++()
+            {
+
+            }
+            wchar_t operator *()
+            {
+
+            }
+            bool operator != (const iterator & other)
+            {
+
+            }
+        };
+        iterator begin()
+        {
+
+        }
+        iterator end()
+        {
+
+        }
+    };
+    render_t new_render()
+    {
+
+    }
+};
+
+struct static_box_t:public text_box_t
+{
+    static_box_t(std::wstring text_in, box_t box_in):
+        text(text_in),
+        box(box_in)
+    {
+
+    }
+    private:
+    box_t box;
+    std::wstring text;
+};
+
+struct window_t:public text_box_t
+{
+    //std::list<std::vector<text_box_t>> boxes;
+};
+#endif
