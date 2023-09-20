@@ -6,12 +6,12 @@
 #include <vector>
 
 std::string do_thing(int num);
+
 void bound(int &v,int a,int b)
 {
          if (v < a) v = a;
     else if (v > b) v = b; 
 }
-
 
 struct box_t ;
 
@@ -42,40 +42,13 @@ struct box_t
     point_t a;
     point_t b;
 };
-#if 0
+
 struct theme_t
 {
     fmt::v10::color fg_color     = fmt::color::red; 
     fmt::v10::color bg_color     = fmt::color::black;
     fmt::v10::color canvas_color = fmt::color::dark_violet;
 };
-/*
-struct text_box_t:public box_t
-{
-    //void set_text(const wchar_t text[])
-
-    void set_text(std::wstring text_)
-    {
-        text = text_;
-    }
-    std::wstring render(int x, int y) 
-    {
-        return text;
-    }
-    //std::vector<std::wstring> text; 
-
-    sz2d_t offset;
-    theme_t theme;
-    wchar_t c(const point_t &point)
-    {
-        (void)point;
-        return ' '; 
-    }
-    private:
-    std::wstring text; 
-
-};
-*/
 
 struct line_number_box_t:public box_t
 {
@@ -91,25 +64,19 @@ struct command_bar_t:public box_t
 
 };
 
-/*
-struct editor_box_t:public box_t
-{
-    text_box_t text_box;
-    line_number_box_t line_numbers;
-};
-*/
 
 bool point_t::h_in(const box_t & box){return (box.a.x <= x) && (x < box.b.x);}
 bool point_t::v_in(const box_t & box){return (box.a.y <= y) && (y < box.b.y);}
 bool point_t::in(const box_t & box){return h_in(box) && v_in(box);}
 bool point_t::l_edge(const box_t & box){return (box.a.x == x) && h_in(box);}
 bool point_t::r_edge(const box_t & box){return (box.b.x == (x+1)) && h_in(box);}
-
-
+template<typename C>
 struct gui
 {
-    enum class M {CMD,INS,VIS};
+    gui(std::string s):curser(s){}
+    C curser;
 
+    enum class M {CMD,INS,VIS};
     M mode;
 
     std::vector<std::wstring> text = {{L"abc"},{L"xyz"}};
@@ -139,10 +106,11 @@ struct gui
     }
 
     template <typename... T>
-    void pnt(T&&... args) {
+    int pnt(T&&... args) {
         auto sz = fmt::formatted_size(std::forward<T>(args)...);
         fmt::format_to(std::back_inserter(buff), std::forward<T>(args)...);
         r.x += sz;
+        return sz;
     }
 
     void key_press(int key)
@@ -203,11 +171,13 @@ struct gui
             r.x= 0 ;
             while(r.x < w.x)
             {
+                //set inverted colors for curser 
                 if (r == c)
                 {
                     fg_set(theme.bg_color);
                     bg_set(theme.fg_color);
                 }
+                //return to normal colors after curser
                 if ((r.y == c.y) && (r.x == c.x+1))
                 {
                     fg_set(theme.fg_color);
@@ -226,7 +196,15 @@ struct gui
                 }
                 else
                 {
-                    pnt(" ");
+                    //pnt(" ");
+                    auto c = curser.val(r.x,r.y);
+                    // pnt("{}",c);
+                    //if (s != 1)
+                    //{
+                    //}
+                    buff.push_back(c);
+                    ++r.x;
+                    //pnt("{}",'s');
                 }
             }
             pnt("│\n");
@@ -236,59 +214,84 @@ struct gui
     }
 };
 
-struct text_box_t 
+
+
+bool printable(char c)
 {
-    struct render_t
+    switch(c)
     {
-        render_t(const text_box_t & text_box)
-        {
-
-        }
-        struct iterator
-        {
-            iterator operator ++()
-            {
-
-            }
-            wchar_t operator *()
-            {
-
-            }
-            bool operator != (const iterator & other)
-            {
-
-            }
-        };
-        iterator begin()
-        {
-
-        }
-        iterator end()
-        {
-
-        }
-    };
-    render_t new_render()
-    {
-
+        case '\n': return false;
+        //case '\0': return false;
+        case '\r': return false;
+        default:return true;
     }
-};
+}
 
-struct static_box_t:public text_box_t
+struct mega_curser
 {
-    static_box_t(std::wstring text_in, box_t box_in):
-        text(text_in),
-        box(box_in)
-    {
+    mega_curser(std::string v_):v(v_){}
 
+    char val(int tx,int ty)
+    {
+        //if((cx > tx) || (cy > ty))
+        {
+            i = v.begin();
+            cx = -1;
+            cy = -1;
+        }
+
+        for(;i != v.end();++i)
+        {
+            auto c = *i;
+            if(printable(c))
+            {
+                if(cx < 0)++cy;
+                ++cx;
+                if ((cy == ty) && (cx == tx))
+                {
+                    break;
+                }
+            }
+            else if (c == '\n')
+            {
+                if (cy == ty){
+                    break;
+                } 
+                cx = -1;
+            }
+        }
+        //if (cx == tx) 
+        if ((cx == tx) &&(cy == ty))
+            return *i; 
+        else
+            return fill;
     }
+
     private:
-    box_t box;
-    std::wstring text;
+    char fill = L'-';
+    std::string v;
+    int cx = -1;
+    int cy = -1;
+    std::string::iterator i = v.begin();
 };
 
-struct window_t:public text_box_t
+template<typename T>
+std::string render(T v, box_t box) 
 {
-    //std::list<std::vector<text_box_t>> boxes;
-};
-#endif
+    std::string ret = "";
+
+    int y = box.a.y; 
+
+    while(true)
+    {
+        if (y == box.b.y) break;
+        for (int x = box.a.x; x < box.b.x;++x)
+        {
+            ret.push_back(v.val(x,y));
+        }
+        if ((y+1) != box.b.y) 
+            ret.push_back(L'\n');
+        ++y;
+    }
+    return ret;
+}
