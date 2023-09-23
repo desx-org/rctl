@@ -44,11 +44,65 @@ void win_resize(gui<T> & g)
         exit(0);
     }
     g.new_size(ws.ws_col,ws.ws_row);
-    //std::cout << g.render() << std::endl;
+
     fmt::print("{}",g.render());
+
     fflush(stdout);
 
 }
+auto txt = std::string(R"(AAA
+BBB
+CCC
+DDD
+EEE
+FFF
+GGG
+HHH
+III
+JJJ
+KKK
+LLL
+MMM
+NNN
+OOO
+PPP
+QQQ
+RRR
+SSS
+TTT
+UUU
+VVV
+WWW
+XXX
+YYY
+ZZZ
+1AA
+jkk
+1BB
+1CC
+1DD
+1EE
+1FF
+1GG
+1HH
+1II
+1JJ
+1KK
+1LL
+1MM
+1NN
+1OO
+1PP
+1QQ
+1RR
+1SS
+1TT
+1UU
+1VV
+1WW
+1XX
+)");
+
 void run_loop()
 {
     struct sigaction sa;
@@ -60,7 +114,7 @@ void run_loop()
     if (sigaction(SIGWINCH, &sa, NULL) == -1)
         printf("sigaction");
 
-    gui<mega_curser> g("this is the text");
+    gui<mega_curser> g(txt);
 
     win_resize(g);
 

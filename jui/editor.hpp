@@ -70,6 +70,7 @@ bool point_t::v_in(const box_t & box){return (box.a.y <= y) && (y < box.b.y);}
 bool point_t::in(const box_t & box){return h_in(box) && v_in(box);}
 bool point_t::l_edge(const box_t & box){return (box.a.x == x) && h_in(box);}
 bool point_t::r_edge(const box_t & box){return (box.b.x == (x+1)) && h_in(box);}
+
 template<typename C>
 struct gui
 {
@@ -77,7 +78,7 @@ struct gui
     C curser;
 
     enum class M {CMD,INS,VIS};
-    M mode;
+    M mode = M::CMD;
 
     std::vector<std::wstring> text = {{L"abc"},{L"xyz"}};
 
@@ -87,7 +88,7 @@ struct gui
 
     point_t w = {0,0};//window size
     point_t c = {0,0};//cursur position
-    point_t r = {0,0};
+    point_t r = {0,0};//render position
 
     box_t canvas;
 
@@ -111,6 +112,13 @@ struct gui
         fmt::format_to(std::back_inserter(buff), std::forward<T>(args)...);
         r.x += sz;
         return sz;
+    }
+    template <typename... T>
+    void log(int lvl,T&&... args) {
+        (void)lvl;
+        auto f = std::fopen("text.log","a");
+        fmt::print(f,std::forward<T>(args)...);
+        std::fclose(f);
     }
 
     void key_press(int key)
@@ -142,6 +150,14 @@ struct gui
                 case 0x1b:mode = M::CMD;break;//ESC key pressed
             }
         }
+        if(c.y < 0)
+        {
+            log(0,"push up\n");
+        }
+        if(c.y >= w.y)
+        {
+            log(0,"push down\n");
+        }
         bound(c.y,0,w.y-1);
         bound(c.x,0,w.x-1);
     }
@@ -165,7 +181,7 @@ struct gui
         canvas.a = {1,1};
         canvas.b = {w.x,w.y}; 
 
-        for(r= {0,0};r.y < w.y;++r.y)
+        for(r = {0,0};r.y < w.y;++r.y)
         {
             pnt("│");
             r.x= 0 ;
@@ -192,19 +208,14 @@ struct gui
                         case M::INS:pnt("INS");break;
                         case M::CMD:pnt("CMD");break;
                     }
-                    pnt(" {:06x}",last_key);
+                    //pnt(" {:06x}",last_key);
                 }
                 else
                 {
-                    //pnt(" ");
-                    auto c = curser.val(r.x,r.y);
-                    // pnt("{}",c);
-                    //if (s != 1)
-                    //{
-                    //}
+                    //auto c = curser.val(r.x,r.y);
+                    auto c = curser.val(r);
                     buff.push_back(c);
                     ++r.x;
-                    //pnt("{}",'s');
                 }
             }
             pnt("│\n");
@@ -221,7 +232,7 @@ bool printable(char c)
     switch(c)
     {
         case '\n': return false;
-        //case '\0': return false;
+        case '\0': return false;
         case '\r': return false;
         default:return true;
     }
@@ -230,38 +241,38 @@ bool printable(char c)
 struct mega_curser
 {
     mega_curser(std::string v_):v(v_){}
-
-    char val(int tx,int ty)
+    
+    char val(point_t t)
     {
+        //TODO: fix to speed up incremental find
         //if((cx > tx) || (cy > ty))
         {
             i = v.begin();
-            cx = -1;
-            cy = -1;
+            c.x = -1;
+            c.y = -1;
         }
 
         for(;i != v.end();++i)
         {
-            auto c = *i;
-            if(printable(c))
+            auto ch = *i;
+            if(printable(ch))
             {
-                if(cx < 0)++cy;
-                ++cx;
-                if ((cy == ty) && (cx == tx))
+                if(c.x < 0) ++c.y;
+                ++c.x;
+                if ((c.y == t.y) && (c.x == t.x))
                 {
                     break;
                 }
             }
-            else if (c == '\n')
+            else if (ch == '\n')
             {
-                if (cy == ty){
+                if (c.y == t.y){
                     break;
                 } 
-                cx = -1;
+                c.x = -1;
             }
         }
-        //if (cx == tx) 
-        if ((cx == tx) &&(cy == ty))
+        if ((c.x == t.x) && (c.y == t.y))
             return *i; 
         else
             return fill;
@@ -270,8 +281,7 @@ struct mega_curser
     private:
     char fill = L'-';
     std::string v;
-    int cx = -1;
-    int cy = -1;
+    point_t c = {-1,-1};
     std::string::iterator i = v.begin();
 };
 
@@ -280,18 +290,14 @@ std::string render(T v, box_t box)
 {
     std::string ret = "";
 
-    int y = box.a.y; 
-
-    while(true)
+    for(point_t c = {0,box.a.y};c.y != box.b.y; ++c.y)
     {
-        if (y == box.b.y) break;
-        for (int x = box.a.x; x < box.b.x;++x)
+        for (c.x = box.a.x; c.x < box.b.x;++c.x)
         {
-            ret.push_back(v.val(x,y));
+            ret.push_back(v.val(c));
         }
-        if ((y+1) != box.b.y) 
+        if ((c.y + 1) != box.b.y) 
             ret.push_back(L'\n');
-        ++y;
     }
     return ret;
 }
