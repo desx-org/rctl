@@ -3,6 +3,7 @@
     "json.schemaDownload.enable": true,
     "files.associations": {
         "*.tcc": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "limits": "cpp"
     }
 }

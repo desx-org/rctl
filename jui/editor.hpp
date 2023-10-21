@@ -4,6 +4,7 @@
 #include "fmt/format.h"
 #include "fmt/color.h"
 #include <vector>
+#include <limits>
 
 std::string do_thing(int num);
 
@@ -15,32 +16,67 @@ void bound(int &v,int a,int b)
 
 struct box_t ;
 
-struct sz2d_t 
-{
-    int w;
-    int h;
-};
 
 struct point_t
 {
+    //point_t(int _x, int _y):x(_x),y(_y){}
     int x;
     int y;
-    bool operator == (const point_t & other)
+
+
+    bool operator == (const point_t & o) const
     {
-        return (other.x == x) && (other.y == y);
+        return (o.x == x) && (o.y == y);
     }
+    bool operator != (const point_t & o) const
+    {
+        return !(*this == o);
+    }
+    bool operator > (const point_t & o)
+    {
+        return (y > o.y) || ((y == o.y) && (x > o.x));
+    }
+    bool operator < (const point_t & o)
+    {
+        return !(*this > o) && !(*this == o);
+    }
+
     bool h_in(const box_t & box);
     bool v_in(const box_t & box);
     bool in(const box_t & box);
 
     bool l_edge(const box_t & box);
     bool r_edge(const box_t & box);
+
+    using lim = std::numeric_limits<int>;
+
+    bool null() const
+    {
+        return ((x == lim::max()) && (y == lim::max()));
+    }
+
+    void set_null() 
+    {
+        x = lim::max();
+        y = lim::max();
+    }
 };
 
 struct box_t 
 {
     point_t a;
     point_t b;
+
+    //point_t tl(){return point_t{.x,.y}};
+    //point_t tr(){return point_t{.x,.y}};
+    //point_t bl(){return point_t{.x,.y}};
+    //point_t br(){return point_t{.x,.y}};
+
+};
+struct shell_color{
+    enum class M {C8,C256,CRGB};
+    M type;
+    uint32_t v;
 };
 
 struct theme_t
@@ -49,21 +85,6 @@ struct theme_t
     fmt::v10::color bg_color     = fmt::color::black;
     fmt::v10::color canvas_color = fmt::color::dark_violet;
 };
-
-struct line_number_box_t:public box_t
-{
-    int start;
-};
-
-struct status_bar_t:public box_t
-{
-
-};
-struct command_bar_t:public box_t
-{
-
-};
-
 
 bool point_t::h_in(const box_t & box){return (box.a.x <= x) && (x < box.b.x);}
 bool point_t::v_in(const box_t & box){return (box.a.y <= y) && (y < box.b.y);}
@@ -78,9 +99,18 @@ struct gui
     C curser;
 
     enum class M {CMD,INS,VIS};
+    const char * Ms(M v){
+        switch(v){
+            case M::CMD: return "CMD";
+            case M::INS: return "INS";
+            case M::VIS: return "VIS";
+        }
+        return "ERR";
+    }
+
     M mode = M::CMD;
 
-    std::vector<std::wstring> text = {{L"abc"},{L"xyz"}};
+    //std::vector<std::wstring> text = {{L"abc"},{L"xyz"}};
 
     theme_t theme;
 
@@ -113,6 +143,7 @@ struct gui
         r.x += sz;
         return sz;
     }
+
     template <typename... T>
     void log(int lvl,T&&... args) {
         (void)lvl;
@@ -121,45 +152,58 @@ struct gui
         std::fclose(f);
     }
 
+    void set_mode(M new_mode)
+    {
+        if(new_mode != mode)
+        {
+            log(0,"new mode: {}\n",Ms(new_mode));
+            mode = new_mode;
+        }
+    }
+    void set_curser(point_t _c)
+    {
+        if(_c != c)
+        {
+            if(     _c.y <    0){log(0,"limit up\n"   );}
+            else if(_c.y >= w.y){log(0,"limit down\n" );}
+            else if(_c.x >= w.x){log(0,"limit right\n");}
+            else if(_c.x    < 0){log(0,"limit left\n" );}
+            else{c = _c; }
+        }
+    }
     void key_press(int key)
     {
         last_key = key;
         //Mode-independant modes
         switch(key)
         {
-            case 0x415b1b:--c.y;break;//UP
-            case 0x425b1b:++c.y;break;//DN
-            case 0x435b1b:++c.x;break;//RT
-            case 0x445b1b:--c.x;break;//LT
-            case 'i':mode = M::INS;break;
+            case 0x415b1b:set_curser({c.x   ,c.y-1});break;//UP
+            case 0x425b1b:set_curser({c.x   ,c.y+1});break;//DN
+            case 0x435b1b:set_curser({c.x+1 ,c.y  });break;//RT
+            case 0x445b1b:set_curser({c.x-1 ,c.y  });break;//LT
         }
         if(mode == M::CMD)
         {
             switch(key)
             {
-                case 'k':--c.y;break;//UP
-                case 'j':++c.y;break;//DN
-                case 'l':++c.x;break;//RT
-                case 'h':--c.x;break;//LT
+                case 'k':set_curser({c.x  ,c.y-1});break;//UP
+                case 'j':set_curser({c.x  ,c.y+1});break;//DN
+                case 'l':set_curser({c.x+1,c.y  });break;//RT
+                case 'h':set_curser({c.x-1,c.y  });break;//LT
+                case 'i':set_mode(M::INS);break;
             }
         }
-        if(mode == M::INS)
+        else if(mode == M::INS)
         {
             switch(key)
             {
-                case 0x1b:mode = M::CMD;break;//ESC key pressed
+                case 0x1b:set_mode(M::CMD);break;//ESC key pressed
+                default:
+                    log(0,"insert: {}\n",(char)key);
+                    curser.insert(key,c);
+                break;
             }
         }
-        if(c.y < 0)
-        {
-            log(0,"push up\n");
-        }
-        if(c.y >= w.y)
-        {
-            log(0,"push down\n");
-        }
-        bound(c.y,0,w.y-1);
-        bound(c.x,0,w.x-1);
     }
 
     void new_size(int x, int y)
@@ -184,7 +228,7 @@ struct gui
         for(r = {0,0};r.y < w.y;++r.y)
         {
             pnt("│");
-            r.x= 0 ;
+            r.x = 0;
             while(r.x < w.x)
             {
                 //set inverted colors for curser 
@@ -208,11 +252,9 @@ struct gui
                         case M::INS:pnt("INS");break;
                         case M::CMD:pnt("CMD");break;
                     }
-                    //pnt(" {:06x}",last_key);
                 }
                 else
                 {
-                    //auto c = curser.val(r.x,r.y);
                     auto c = curser.val(r);
                     buff.push_back(c);
                     ++r.x;
@@ -220,12 +262,10 @@ struct gui
             }
             pnt("│\n");
         }
-        pnt("└{0:─^{1}}┘",v,w.x);
+        pnt("└{0:─^{1}}┘\e[0m",v,w.x);
         return std::string(buff.begin(),buff.end());
     }
 };
-
-
 
 bool printable(char c)
 {
@@ -238,51 +278,126 @@ bool printable(char c)
     }
 }
 
+struct text_editor_box 
+{
+
+};
+
 struct mega_curser
 {
-    mega_curser(std::string v_):v(v_){}
-    
-    char val(point_t t)
-    {
-        //TODO: fix to speed up incremental find
-        //if((cx > tx) || (cy > ty))
-        {
-            i = v.begin();
-            c.x = -1;
-            c.y = -1;
-        }
+    mega_curser(std::string  _s):v(_s){
+        reset();
+        adv_next_printable();
+        t = c;
+    }
+    template <typename... T>
+    void log(int lvl,T&&... args) {
+        (void)lvl;
+        auto f = std::fopen("text.log","a");
+        fmt::print(f,std::forward<T>(args)...);
+        std::fclose(f);
+    }
+    shell_color text_color(){
+        return shell_color{shell_color::M::C256,1};
+    }
+    shell_color bg_color(){
+        return shell_color{shell_color::M::C256,1};
+    }
+    bool bold(){
+        return false;
+    }
+    bool underline(){
+        return false;
+    }
+    void reset(){
+        c = {0,0};
+        i = 0;
+        if(i == v.size())
+           c.set_null();
+    }
 
-        for(;i != v.end();++i)
+    bool null(){return i == v.size();}
+
+
+    point_t loc(){
+        return c;
+    }
+
+    void advance()
+    {
+        ++i;
+        if(printable(v[i])) ++c.x;
+        else adv_next_printable();
+    }
+
+    void adv_next_printable() 
+    {
+        while(1)
         {
-            auto ch = *i;
-            if(printable(ch))
-            {
-                if(c.x < 0) ++c.y;
-                ++c.x;
-                if ((c.y == t.y) && (c.x == t.x))
-                {
-                    break;
-                }
+            if(i == v.size()){
+                c.set_null();
+                return;
+            } 
+            if(printable(v[i])) {
+                return;
             }
-            else if (ch == '\n')
-            {
-                if (c.y == t.y){
-                    break;
-                } 
-                c.x = -1;
+            else if(v[i] == '\n'){
+                c.x = 0;
+                ++c.y;
             }
+            ++i;
         }
-        if ((c.x == t.x) && (c.y == t.y))
-            return *i; 
+    } 
+    void insert(char c)
+    {
+        v.insert(v.begin() + i,c);
+    }
+    void insert(char ch,point_t l)
+    {
+        go_to(l);
+        if(c == t)
+            v.insert(v.begin() + i,ch);
         else
-            return fill;
+            log(0,"cant insert\n");
+    }
+
+    void go_to(point_t _t)
+    {
+        t = _t;
+        if (c > t) reset();
+
+        while((c < t) && !null())
+        {
+            advance();
+        }
+        if((c != t) || !printable(v[i]))
+        {
+            c.set_null();
+        }
+    }
+    char c_val(){
+        return null() ? fill:v[i];
+    }
+    char val(){
+        return t == c ? v[i]:fill;
+    }
+    char val(point_t _t)
+    {
+        go_to(_t);
+        return val();
     }
 
     private:
     char fill = L'-';
     std::string v;
-    point_t c = {-1,-1};
-    std::string::iterator i = v.begin();
+    size_t i;//current index
+
+    size_t t_c;//foreground color index
+    size_t b_c;//background color index
+    size_t u_c;//underline color index
+
+    point_t c;//curretn
+    point_t t;//target
 };
 
 template<typename T>
@@ -293,9 +408,8 @@ std::string render(T v, box_t box)
     for(point_t c = {0,box.a.y};c.y != box.b.y; ++c.y)
     {
         for (c.x = box.a.x; c.x < box.b.x;++c.x)
-        {
             ret.push_back(v.val(c));
-        }
+
         if ((c.y + 1) != box.b.y) 
             ret.push_back(L'\n');
     }

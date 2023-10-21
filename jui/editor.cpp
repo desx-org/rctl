@@ -59,12 +59,6 @@ std::string do_thing(int num)
         {
             auto w = window_size();
             fmt::print("{}x{}\n",w.ws_col,w.ws_row);
-            /*
-            fmt::print(
-                "┌{0:─^{2}}┐\n"
-                "│{1: ^{2}}│\n"
-                "└{0:─^{2}}┘\n", "", "Hello, world!", w.ws_col-2);
-            */
         }
         sleep(0.01);
     }
