@@ -27,4 +27,7 @@ RUN echo 'export PATH=$PATH:/opt/vcpkg' >>/home/vscode/.bashrc
 RUN /opt/vcpkg/vcpkg install fmt catch2
 
 #docker build -t dev_img1 .b
+#docker login --username jochen510 -p "52j(vDNjkjJJ.%<"
 
+#docker tag 8f3c75affc8a jochen510/dev1:it1
+#docker push jochen510/dev1
