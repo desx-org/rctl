@@ -2,19 +2,15 @@
 	"name": "C++",
 	"image": "jochen510/dev1:it1",
 	// Set *default* container specific settings.json values on container create.
-	"settings": {},
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools"
-	],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "gcc -v",
-
+	"customizations": {
+		"settings": {},
+		"extensions": [
+			"ms-vscode.cpptools",
+			"vscodevim.vim",
+			"twxs.cmake",
+			"davidanson.vscode-markdownlint"
+		]
+	},
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }
